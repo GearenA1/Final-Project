@@ -17,6 +17,7 @@ public class Roguelike {
     public static void main(String[] args) {
         createWindow();
         createDungeon();
+        GameBoard board = new GameBoard();
     }
 
     public static void createWindow() {
@@ -35,7 +36,7 @@ public class Roguelike {
 }
 
 class GameBoard extends JPanel implements KeyListener {
-    private final int mapWidth = 100;
+    private final int mapWidth = 80;
     private final int mapHeight = 50;
     private char[][] dungeon;
     private int playerX, playerY;
