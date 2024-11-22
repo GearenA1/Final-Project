@@ -1,0 +1,132 @@
+/* Gearen Abdalla
+ * 2024/11/22
+ * Final Project
+
+ */
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.*;
+import java.awt.*;
+import java.util.Random;
+
+public class Roguelike {
+
+    private static JFrame window;
+    private static GameBoard gameBoard;
+
+    public static void main(String[] args) {
+        createWindow();
+        createDungeon();
+    }
+
+    public static void createWindow() {
+        window = new JFrame("Proto Rogue");
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setVisible(true);
+    }
+
+    public static void createDungeon() {
+        gameBoard = new GameBoard();
+        JScrollPane scrollPane = new JScrollPane(gameBoard);
+        window.add(scrollPane);
+        window.revalidate();
+    }
+}
+
+class GameBoard extends JPanel implements KeyListener {
+    private final int mapWidth = 100;
+    private final int mapHeight = 50;
+    private char[][] dungeon;
+    private int playerX, playerY;
+    private JTextArea textArea;
+
+    public GameBoard() {
+        textArea = new JTextArea();
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        textArea.setEditable(false);
+        setLayout(new BorderLayout());
+        add(textArea, BorderLayout.CENTER);
+        addKeyListener(this);
+        setFocusable(true);
+        initializeDungeon();
+        renderDungeon();
+    }
+
+    private void initializeDungeon() {
+        dungeon = new char[mapHeight][mapWidth];
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
+                dungeon[y][x] = ' ';
+            }
+        }
+        generateRoomsAndCorridors();
+        playerX = mapWidth / 2;
+        playerY = mapHeight / 2;
+        dungeon[playerY][playerX] = '@';
+    }
+
+    private void generateRoomsAndCorridors() {
+        Random randGen = new Random();
+        int roomCount = 5;
+        for (int i = 0; i < roomCount; i++) {
+            int roomWidth = randGen.nextInt(10) + 5;
+            int roomHeight = randGen.nextInt(5) + 3;
+            int roomX = randGen.nextInt(mapWidth - roomWidth - 1) + 1;
+            int roomY = randGen.nextInt(mapHeight - roomHeight - 1) + 1;
+
+            for (int y = roomY; y < roomY + roomHeight; y++) {
+                for (int x = roomX; x < roomX + roomWidth; x++) {
+                    dungeon[y][x] = '.';
+                }
+            }
+
+            if (i > 0) {
+                int prevRoomCenterX = roomX + roomWidth / 2;
+                int prevRoomCenterY = roomY + roomHeight / 2;
+                int currRoomCenterX = randGen.nextInt(mapWidth);
+                int currRoomCenterY = randGen.nextInt(mapHeight);
+                createCorridor(prevRoomCenterX, prevRoomCenterY, currRoomCenterX, currRoomCenterY);
+            }
+        }
+    }
+
+    private void createCorridor(int x1, int y1, int x2, int y2) {
+        int currentX = x1;
+        int currentY = y1;
+        while (currentX != x2) {
+            dungeon[currentY][currentX] = '.';
+            currentX += (x2 > currentX) ? 1 : -1;
+        }
+        while (currentY != y2) {
+            dungeon[currentY][currentX] = '.';
+            currentY += (y2 > currentY) ? 1 : -1;
+        }
+    }
+
+    private void renderDungeon() {
+        StringBuilder mapBuilder = new StringBuilder();
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
+                mapBuilder.append(dungeon[y][x]);
+            }
+            mapBuilder.append("\n");
+        }
+        textArea.setText(mapBuilder.toString());
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+}
